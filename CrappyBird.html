@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crappy Bird</title>
+    <style>
+        #game {
+            position: relative;
+            background-image: url(bg.png);
+            width: 288px;
+            height: 384px;
+            margin-left: auto;
+            margin-right: auto;
+            overflow: hidden;
+        }
+        #bird {
+            position: absolute;
+            left: 30px;
+            top: 150px;
+            background-image: url(theBird.png);
+            width: 34px;
+            height: 24px;
+        }
+
+        .stolpe {
+            position: absolute;
+            height: 130px;
+            left: 200px;
+            width: 30px;
+            background-image: linear-gradient(90deg, lightgreen, green, lightgreen);
+        }
+        #s1 {
+            top: 0;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+        #s2 {
+            bottom: 0;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+        #score {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 50px;
+            color: white;
+            font-family: "Comic Sans MS", sans-serif;
+            font-size: 28px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="game">
+        <div id="bird"></div>
+        <div class="stolpe" id="s1"></div>
+        <div class="stolpe" id="s2"></div>
+        <div id="score">0</div>
+    </div>
+    <script>
+
+        var theGameIsOn = true;
+        var score = document.getElementById("score");
+
+
+        var game = {
+            element: document.getElementById("game"),
+            score: 0,
+            bgspeed: 1,
+            bgpos: 0,
+            height: 384,
+            width: 288
+        };
+
+        // TODO: Implement gap
+        var stolper = {
+            xpos: game.width + 100,
+            speed: 3,
+            width: 30,
+            s1: {
+                height: 120,
+                element: document.getElementById("s1")
+            },
+            s2: {
+                height: 120,
+                element: document.getElementById("s2")
+            }
+        };
+
+        var bird = {
+            element: document.getElementById("bird"),
+            yspeed: 1,
+            gravity: 0.1,
+            xpos: 30,
+            ypos: 150,
+            width: 34,
+            height: 24,
+            rotation: 0,
+            jumpforce: -4
+        };
+
+        function jump() {
+            bird.yspeed = bird.jumpforce;
+        }
+
+        function flyttFugl() {
+            bird.yspeed = bird.yspeed + bird.gravity;
+            bird.ypos += bird.yspeed;
+            bird.element.style.top = bird.ypos + "px";
+            bird.rotation = bird.yspeed * 5;
+            bird.element.style.transform = "rotate(" + bird.rotation + "deg)";
+        }
+
+        function flyttBakgrunn() {
+            game.bgpos = game.bgpos - game.bgspeed;
+            game.element.style.backgroundPosition = game.bgpos + "px 0";
+        }
+
+        function sjekkOmFuglTrefferBakken() {
+            if(bird.ypos + bird.height >= game.height){
+                theGameIsOn = false;
+            }
+        }
+
+        function flyttStolper() {
+            stolper.xpos -= stolper.speed;
+            stolper.s1.element.style.left = stolper.xpos + "px";
+            stolper.s2.element.style.left = stolper.xpos + "px";
+
+            // Ny runde med stolper
+            if(stolper.xpos < -stolper.width) {
+
+                game.score++;
+                score.innerHTML = game.score;
+
+                stolper.xpos = game.width;
+                stolper.s1.height = 80 + Math.random() * 80;
+                stolper.s2.height = 80 + Math.random() * 80;
+                stolper.s1.element.style.height = stolper.s1.height + "px";
+                stolper.s2.element.style.height = stolper.s2.height + "px";
+            }
+        }
+
+        function sjekkOmFuglTrefferStolpe() {
+            // Er stolpene på linje med nebbet
+            if(bird.xpos + bird.width > stolper.xpos && bird.xpos < stolper.xpos + stolper.width) {
+
+                // Treffer fuglen takstolpen?
+                if(bird.ypos < stolper.s1.height) {
+                    theGameIsOn = false;
+                }
+
+                if(bird.ypos + bird.height > game.height - stolper.s2.height) {
+                    theGameIsOn = false;
+                }
+            }
+        }
+
+        function setScore() {
+            // TODO: Legg inn score i Firebase
+            // TODO: Oppdater highscore-liste
+            // TODO: Lag start på nytt-knapp
+            // TODO: Vis GAME OVER på skjermen
+            // TODO: Resette verdier
+        }
+
+        function gameLoop() {
+            flyttBakgrunn();
+            flyttFugl();
+            sjekkOmFuglTrefferBakken();
+            flyttStolper();
+            sjekkOmFuglTrefferStolpe();
+
+            if(theGameIsOn) {
+                requestAnimationFrame(gameLoop);
+            } else {
+                setScore();
+            }
+        }
+        requestAnimationFrame(gameLoop);
+
+        game.element.onclick = jump;
+
+    </script>
+
+</body>
+
+</html>

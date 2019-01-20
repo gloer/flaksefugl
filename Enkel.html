@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flaksefugl</title>
+<style>
+    #spill {
+        position: relative;
+        background-image: url(bakgrunn.png);
+        width: 288px;
+        height: 384px;
+    }
+    #fugl {
+        position: absolute;
+        background-image: url(fugl.png);
+        width: 34px;
+        height: 24px;
+        left: 30px; /* Litt ut fra kanten */
+    }
+</style>
+</head>
+<body>
+<div id="spill">
+    <div id="fugl"></div>
+</div>
+
+<script>
+    var spill = document.getElementById("spill");
+    var krasjhoyde = 360; // Så langt ned fuglen kan falle
+    var fugl = document.getElementById("fugl");
+    var fuglpos = 100; // y-posisjonen til fuglen
+    var fuglenFlyr = true; // Settes til false når fuglen styrter
+    var gravitasjon = 0.1; // For at fuglen skal falle fortere og fortere
+    var fallfart = 1; // Utgangsfart for fuglens fall
+    var bgpos = 0; // Bakgrunnsposisjon
+    var bgfart = -1; // Bakgrunn skal flytte seg til venstre
+
+    function fly() {
+        fallfart += gravitasjon; // Legger på gravitasjon
+        fuglpos += fallfart; // Setter ny posisjon
+        fugl.style.top = fuglpos + "px"; // Setter CSS
+        if(fuglpos > krasjhoyde) { // Sjekker om fuglen treffer bunnen
+            fuglenFlyr = false; // Da skal spillet stoppe
+        }
+    }
+
+    function bevegBakgrunn() {
+        bgpos += bgfart; // Minksker bgpos siden bgfart er negativ
+        spill.style.backgroundPosition = bgpos + "px  0px"; // Setter CSS
+    }
+
+    function gameLoop() {
+        bevegBakgrunn();
+        fly();
+
+        if(fuglenFlyr) { // Sjekker omm fuglen fortsatt skal fly
+            requestAnimationFrame(gameLoop); // Starter funksjon på nytt
+        }
+    }
+    requestAnimationFrame(gameLoop); // Starter funksjon første gang
+
+    function flaks() {
+        fallfart = -4; // Setter negativ fart. Da flyr fuglen oppover
+    }
+    spill.onclick = flaks; // Klikk på spill-div starter funksjonen
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flappy Bird</title>
+    <style>
+        #game {
+            position: relative;
+            background-image: url(bg.png);
+            width: 288px;
+            height: 384px;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+        #bird {
+            position: absolute;
+            background-image: url(theBird.png);
+            width: 34px;
+            height: 24px;
+            left: 30px;
+            top: 200px;
+        }
+        .stolpe {
+            position: absolute;
+            background-image: linear-gradient(90deg, yellow, darkorange);
+            width: 30px;
+            height: 140px;
+            left: 200px;
+        }
+
+        #s1 {
+            top: 0;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+        #s2 {
+            bottom: 0;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+        #visPoeng {
+            position: absolute;
+            text-align: center;
+            width: 100%;
+            color: white;
+            font-family: "Arial Black", sans-serif;
+            font-size: 36px;
+            top: 30px;
+
+        }
+
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div id="bird"></div>
+        <div class="stolpe" id="s1"></div>
+        <div class="stolpe" id="s2"></div>
+        <div id="visPoeng">0</div>
+    </div>
+    <script>
+        var theGameIsOn = true;
+        var poeng = 0;
+
+        var visPoeng = document.getElementById("visPoeng");
+
+
+        var stolper = {
+            xpos: 200,
+            width: 30,
+            xfart: 2,
+            s1: {
+                element: document.getElementById("s1"),
+                height: 140
+            },
+            s2: {
+                element: document.getElementById("s2"),
+                height: 140
+            }
+        };
+
+        var game = {
+            element: document.getElementById("game"),
+            bgpos: 0,
+            bgfart: 2,
+            height: 384,
+            width: 288
+        };
+
+        var fugl = {
+            element: document.getElementById("bird"),
+            fart: 1,
+            gravitasjon: 0.1,
+            xpos: 30,
+            ypos: 200,
+            height: 24,
+            width: 30,
+            rotasjon: 0
+        };
+
+        function jump() {
+            fugl.fart = -4;
+        }
+
+        function flyttFugl() {
+            fugl.fart = fugl.fart + fugl.gravitasjon;
+            fugl.ypos = fugl.ypos + fugl.fart;
+            fugl.element.style.top = fugl.ypos + "px";
+
+            fugl.rotasjon = fugl.fart * 10;
+            fugl.element.style.transform = "rotate(" + fugl.rotasjon + "deg)";
+
+        }
+
+        function flyttBakgrunn() {
+            game.bgpos = game.bgpos - game.bgfart;
+            console.log(game.bgpos);
+            game.element.style.backgroundPosition = game.bgpos + "px 0px";
+        }
+
+        function flyttStolper() {
+            stolper.xpos = stolper.xpos - stolper.xfart;
+            stolper.s1.element.style.left = stolper.xpos + "px";
+            stolper.s2.element.style.left = stolper.xpos + "px";
+
+            if(stolper.xpos <= -60) {
+                // Flytter stolpene til høyre for spillet
+                stolper.xpos = game.width + 40;
+
+                // Setter random høyde
+                stolper.s1.height = 100 + Math.random() * 80;
+                stolper.s2.height = 100 + Math.random() * 80;
+
+                // Setter CSS på elementene
+                stolper.s1.element.style.height = stolper.s1.height + "px";
+                stolper.s2.element.style.height = stolper.s2.height + "px";
+            }
+
+            if(stolper.xpos === fugl.xpos - fugl.width) {
+                poeng++;
+                visPoeng.innerHTML = poeng;
+            }
+
+        }
+
+        function sjekkOmFuglTrefferBakken() {
+            if (fugl.ypos + fugl.height >= game.height) {
+                theGameIsOn = false;
+            }
+        }
+
+        function sjekkOmFuglTrefferTaket() {
+            if (fugl.ypos <= 0) {
+                theGameIsOn = false;
+            }
+        }
+
+        function sjekkOmFuglTrefferStolpe() {
+            // Er nebbet på linje med stolpene?
+            if(fugl.xpos + fugl.width >= stolper.xpos && fugl.xpos <= stolper.xpos + stolper.width) {
+
+                // Treffer den stolpen i taket?
+                if(fugl.ypos <= stolper.s1.height) {
+                    theGameIsOn = false;
+                }
+
+                // Treffer den stolpen på bakken?
+                if(fugl.ypos + fugl.height >= game.height - stolper.s2.height) {
+                    theGameIsOn = false;
+                }
+            }
+
+
+        }
+
+        function gameLoop() {
+
+            flyttFugl();
+            flyttBakgrunn();
+            flyttStolper();
+            sjekkOmFuglTrefferBakken();
+            sjekkOmFuglTrefferTaket();
+            sjekkOmFuglTrefferStolpe();
+
+
+            if(theGameIsOn) {
+                requestAnimationFrame(gameLoop);
+            } else {
+                // TODO: Legg inn score i Firebase
+                // TODO: Spill en stygg lyd
+                // TODO: Gjør synlig en tekst: "GAME OVER";
+                // TODO: Oppdater HIGHSCORE-liste på siden
+                // lagreScore();
+            }
+
+        }
+        requestAnimationFrame(gameLoop);
+
+        game.element.onclick = jump;
+    </script>
+
+</body>
+
+</html>

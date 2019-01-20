@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flaksefugl</title>
+    <style>
+        #spill {
+            position: relative;
+            background-image: url(bg.png);
+            width: 400px;
+            height: 384px;
+            overflow: hidden;
+        }
+        #fugl {
+            position: absolute;
+            background-image: url("theBird.png");
+            width: 34px;
+            height: 24px;
+            left: 30px;
+        }
+        
+        .stolper {
+            width: 30px;
+            background-image: linear-gradient(90deg, yellow, darkorange);
+            left: 400px;
+            height: 130px;
+        }
+
+        #takstolpe {
+            position: absolute;
+            top: 0;
+            border-radius: 0 0 5px 5px;
+        }
+        #bakkestolpe {
+            position: absolute;
+            bottom: 0;
+            border-radius: 5px 5px 0 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="spill">
+        <div id="fugl"></div>
+        <div id="takstolpe" class="stolper"></div>
+        <div id="bakkestolpe" class="stolper"></div>
+    </div>
+    <script>
+        var fuglenFlyr = true;
+        var gravitasjon = 0.1;
+
+        var spill = {
+            element: document.getElementById("spill"),
+            bredde: 400,
+            hoyde: 384,
+            bgpos: 0,
+            bgfart: -1
+        };
+
+        var fugl = {
+            element: document.getElementById("fugl"),
+            xpos: 30,
+            ypos: 100,
+            yfart: 1,
+            bredde: 34,
+            hoyde: 24,
+            rotasjon: 0,
+            vingekraft: 4
+        };
+
+        var stolper = {
+            xpos: spill.bredde,
+            xfart: -2,
+            ypos: 100,
+            bredde: 30,
+            mellomrom: 40,
+            takstolpe: {
+                element: document.getElementById("takstolpe"),
+                hoyde: 130
+            },
+            bakkestolpe: {
+                element: document.getElementById("bakkestolpe"),
+                hoyde: 130
+            }
+        };
+
+        function flyttBakgrunn() {
+            spill.bgpos += spill.bgfart;
+            spill.element.style.backgroundPosition = spill.bgpos + "px 0px";
+        }
+
+        function fly() {
+            fugl.yfart += gravitasjon;
+            fugl.ypos += fugl.yfart;
+            fugl.rotasjon = fugl.yfart * 8;
+            fugl.element.style.top = fugl.ypos + "px";
+            fugl.element.style.transform = "rotate(" + fugl.rotasjon + "deg)";
+
+        }
+
+        function flyttStolper() {
+            stolper.xpos += stolper.xfart;
+
+            stolper.takstolpe.element.style.left = stolper.xpos + "px";
+            stolper.bakkestolpe.element.style.left = stolper.xpos + "px";
+
+            if(stolper.xpos < -stolper.bredde) {
+                stolper.xpos = spill.bredde;
+                stolper.bakkestolpe.hoyde = 50 + Math.random() * 80;
+                stolper.takstolpe.hoyde = 260 - stolper.bakkestolpe.hoyde;
+                stolper.bakkestolpe.element.style.height = stolper.bakkestolpe.hoyde + "px";
+                stolper.takstolpe.element.style.height = stolper.takstolpe.hoyde + "px";
+            }
+        }
+
+        function sjekkOmFuglStyrter() {
+            if (fugl.ypos + fugl.hoyde > spill.hoyde){
+                fuglenFlyr = false;
+            }
+        }
+
+        function sjekkOmFuglTrefferStolpe() {
+            if(fugl.xpos + fugl.bredde > stolper.xpos && fugl.xpos < stolper.xpos + stolper.bredde) {
+                console.log("Mellom stolper");
+
+                // Treffer takstolpe
+                if(fugl.ypos < stolper.takstolpe.hoyde) {
+                    fuglenFlyr = false;
+                } else
+                if(fugl.ypos + fugl.hoyde > spill.hoyde - stolper.bakkestolpe.hoyde) {
+                    fuglenFlyr = false;
+                }
+
+            }
+        }
+
+        function flaks() {
+            fugl.yfart = -fugl.vingekraft;
+        }
+
+        spill.element.onclick = flaks;
+
+        function gameLoop() {
+            flyttBakgrunn();
+            fly();
+            flyttStolper();
+            sjekkOmFuglStyrter();
+            sjekkOmFuglTrefferStolpe();
+
+            if(fuglenFlyr) {
+                requestAnimationFrame(gameLoop);
+            } else {
+                // Spillet er over
+            }
+        }
+        requestAnimationFrame(gameLoop);
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EasyBird - The ultimate game</title>
+    <style>
+
+        #game {
+            position: relative;
+            background-image: url(bg.png);
+            width: 600px;
+            height: 384px;
+            margin-left: auto;
+            margin-right: auto;
+            overflow: hidden;
+        }
+        #game > * {
+            position: absolute;
+        }
+
+        #bird {
+            background-image: url(theBird.png);
+            width: 34px;
+            height: 24px;
+            left: 30px;
+        }
+
+        .stolpe {
+            width: 30px;
+            height: 150px;
+            background-image: linear-gradient(90deg, orange, yellow, orange);
+            left: 200px;
+        }
+
+        #takstolpe {
+            top: 0;
+            border-bottom-left-radius: 15px 3px;
+            border-bottom-right-radius: 15px 3px;
+        }
+
+        #gulvstolpe {
+            bottom: 0;
+            border-top-left-radius: 15px 3px;
+            border-top-right-radius: 15px 3px;
+        }
+
+        #visPoeng {
+            width: 100%;
+            top: 50px;
+            text-align: center;
+            font-family: "Helvetica Neue", sans-serif;
+            font-size: 32px;
+            color: whitesmoke;
+            text-shadow: 0 0 2px black;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game">
+        <div id="bird"></div>
+        <div class="stolpe" id="takstolpe"></div>
+        <div class="stolpe" id="gulvstolpe"></div>
+        <div id="visPoeng">0</div>
+    </div>
+
+    <script>
+        var poeng = 0;
+        var visPoeng = document.getElementById("visPoeng");
+
+
+        var game = document.getElementById("game");
+        var bird = document.getElementById("bird");
+        var takstolpe = document.getElementById("takstolpe");
+        var gulvstolpe = document.getElementById("gulvstolpe");
+
+
+        // Define variables for the game
+        var bgpos = 0;
+        var bgspeed = -2;
+
+        // Define variables for the bird
+        var birdpos = 140;
+        var birdspeed = 1;
+        var gravity = 0.1;
+
+        // Define variables for the poles
+        var stolpepos = 640;
+        var stolpespeed = -4;
+
+        var takstopleHeight = 150;
+        var gulvstopleHeight = 150;
+
+
+        var theGameIsOn = true;
+
+        function jump() {
+            birdspeed = -4;
+        }
+
+        function gameLoop() {
+            // Move the background
+            bgpos = bgpos + bgspeed;
+            game.style.backgroundPosition = bgpos + "px 0px";
+
+            // The bird is sinking
+            birdspeed = birdspeed + gravity;
+            birdpos = birdpos + birdspeed;
+            bird.style.top = birdpos + "px";
+            bird.style.transform = "rotate(" + birdspeed * 10 + "deg)";
+
+            // Move the poles
+            stolpepos = stolpepos + stolpespeed;
+            takstolpe.style.left = stolpepos + "px";
+            gulvstolpe.style.left = stolpepos + "px";
+
+            // If the poles get out of the board, move to the right
+            if(stolpepos <= -40) {
+                stolpepos = 640;
+                takstopleHeight = 30 + Math.random() * 120;
+                gulvstopleHeight = 300 - takstopleHeight;
+
+                takstolpe.style.height = takstopleHeight + "px";
+                gulvstolpe.style.height = gulvstopleHeight + "px";
+
+            }
+
+            // Sjekker om fuglen treffer en stolpe
+            if(stolpepos === 64) {
+                if(birdpos + 24 < takstopleHeight) {
+                    theGameIsOn = false;
+                } else
+                if(birdpos > 384 - gulvstopleHeight) {
+                    theGameIsOn = false;
+                }
+                else {
+                    poeng++;
+                    visPoeng.innerHTML = poeng;
+                }
+            }
+
+
+
+            // Sjekker om fuglen treffer bakken
+            if(birdpos >= 360) {
+                theGameIsOn = false;
+            }
+
+            // Restart the loop if the game is on
+            if(theGameIsOn){
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Start the loop  for the first time
+        requestAnimationFrame(gameLoop);
+
+        game.onclick = jump;
+
+
+    </script>
+
+</body>
+
+</html>
