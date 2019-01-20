@@ -1,0 +1,25 @@
+
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: orange;
+}
+
+main {
+    width: 288px;
+    height: 334px;
+    background-image: url("./bg.png");
+    position: relative;
+    overflow: hidden;
+}
+
+main img {
+    position: absolute;
+    left: 20px;
+    top: 100px;
+    user-select: none;
+}
+
